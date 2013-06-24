@@ -1,6 +1,7 @@
 # OrgSync API Javascript Client
 
-Currently jQuery is the only dependency.
+To install, simply use [Bower](https://github.com/twitter/bower) and add
+`'orgsync-api-javascript` to your `bower.json`.
 
 ```js
 // Create an API instance.
