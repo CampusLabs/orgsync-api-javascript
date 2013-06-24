@@ -12,8 +12,9 @@
   };
 
   _.extend(OrgSyncApi.prototype, {
-    get: function (path, cb) {
-      var data = {};
+    get: function (path, data, cb) {
+      if (!cb) cb = data;
+      if (!_.isObject(data)) data = {};
       if (this.key) data.key = this.key;
       return $.ajax({
         type: 'GET',

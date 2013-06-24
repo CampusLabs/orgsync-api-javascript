@@ -19,4 +19,7 @@ api.get('/communities/2/orgs', function (er, data) {
   if (er) return alert('Failed with error: ' + er);
   alert('Everything went better than expected: ' + JSON.stringify(data));
 });
+
+// Or with parameters
+api.get('/communities/2/orgs', {page: 2}, function (er, data) { ... });
 ```
