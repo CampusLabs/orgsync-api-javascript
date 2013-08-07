@@ -1,7 +1,8 @@
 # OrgSync API Javascript Client
 
 To install, simply use [Bower](https://github.com/twitter/bower) and add
-`'orgsync-api-javascript` to your `bower.json`.
+`'orgsync-api-javascript` to your `bower.json`. The same API is also duplicated
+in Node.js via the npm package with the same name. On the browser you can use either jQuery or superagent for generating XHR, but for JSONP support, you'll need jQuery on the page. superagent for generating requests in Node.js.
 
 ```js
 // Create an API instance.
