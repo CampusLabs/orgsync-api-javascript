@@ -1,6 +1,10 @@
 {
   "name": "orgsync-javascript-api",
   "version": "0.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/orgsync/io"
+  },
   "dependencies": {
     "superagent": "x",
     "underscore": "x"
