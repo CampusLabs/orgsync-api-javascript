@@ -1,6 +1,7 @@
 {
   "name": "orgsync-javascript-api",
   "version": "0.0.0",
+  "main": "orgsync-javascript-api",
   "repository": {
     "type": "git",
     "url": "https://github.com/orgsync/io"
