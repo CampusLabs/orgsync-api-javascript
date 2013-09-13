@@ -16,7 +16,7 @@
     // https://hacks.mozilla.org/2009/07/cross-site-xmlhttprequest-with-cors/
     cors: XMLHttpRequest && 'withCredentials' in new XMLHttpRequest(),
 
-    urlRoot: 'http://design.universitysync.com/user_api/v1',
+    urlRoot: 'http://mobile-staging.orgsync.com/user_api/v1',
 
     req: function (method, path, data, cb) {
       if (!cb) cb = data;
