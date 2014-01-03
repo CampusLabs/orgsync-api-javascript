@@ -1,11 +1,14 @@
-(function () {
+(function (root, factory) {
+  if (typeof define === 'function' && root.define.amd) {
+    root.define('orgsync-api', ['jquery', 'underscore', 'superagent'], factory);
+  } else if (typeof exports !== 'undefined') {
+    module.exports =
+      factory(null, require('underscore'), require('superagent'));
+  } else {
+    root.OrgSyncApi = factory(root.jQuery, root._, root.superagent);
+  }
+})(this, function ($, _, superagent) {
   'use strict';
-
-  var node = typeof window === 'undefined';
-
-  var $ = node ? null : window.jQuery;
-  var _ = node ? require('underscore') : window._;
-  var superagent = node ? require('superagent') : window.superagent;
 
   var methods = ['get', 'post', 'patch', 'put', 'delete'];
 
@@ -24,7 +27,7 @@
       if (this.key) data.key = this.key;
       var url = this.urlRoot + path;
       if (superagent && this.cors) {
-        this.superagentReq(method, url, data, cb);
+        return this.superagentReq(method, url, data, cb);
       }
       return this.jQueryReq(method, url, data, cb);
     },
@@ -74,5 +77,5 @@
     return obj;
   }, {}));
 
-  node ? module.exports = OrgSyncApi : window.OrgSyncApi = OrgSyncApi;
-})();
+  return OrgSyncApi;
+});
