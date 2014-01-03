@@ -1,6 +1,6 @@
 (function (root, factory) {
   if (typeof define === 'function' && root.define.amd) {
-    root.define('orgsync-api', ['jquery', 'underscore', 'superagent'], factory);
+    root.define(['jquery', 'underscore', 'superagent'], factory);
   } else if (typeof exports !== 'undefined') {
     module.exports =
       factory(null, require('underscore'), require('superagent'));
