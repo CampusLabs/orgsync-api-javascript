@@ -1,6 +1,6 @@
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
-    define(['jquery', 'underscore', 'superagent'], factory);
+    define(['jquery', 'underscore'], factory);
   } else if (typeof exports !== 'undefined') {
     module.exports =
       factory(null, require('underscore'), require('superagent'));
