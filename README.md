@@ -1,5 +1,7 @@
 # OrgSync API Javascript Client
 
+### WARNING: OrgSync API V3 is currently unstable
+
 To install, simply use [Bower](https://github.com/twitter/bower) and add
 `'orgsync-api'` to your `bower.json`. The same API is also duplicated
 in Node.js via the npm package with the same name. On the browser you'll need
