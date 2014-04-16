@@ -1,5 +1,5 @@
 {
-  "name": "orgsync-javascript-api",
+  "name": "orgsync-api",
   "version": "0.0.0",
   "dependencies": {
     "jquery": "x",
