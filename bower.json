@@ -2,10 +2,7 @@
   "name": "orgsync-javascript-api",
   "version": "0.0.0",
   "dependencies": {
-    "underscore": "x"
-  },
-  "devDependencies": {
     "jquery": "x",
-    "superagent": "x"
+    "underscore": "x"
   }
 }
