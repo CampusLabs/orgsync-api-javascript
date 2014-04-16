@@ -57,14 +57,11 @@
       });
     },
 
-    login: function (communityId, username, password, cb) {
+    login: function (data, cb) {
       var self = this;
-      this.post('/authentication/login', {
-        device_info: 'OrgSync API JavaScript Client',
-        community_id: communityId,
-        username: username,
-        password: password
-      }, function (er, res) {
+      this.post('/authentication/login', _.extend({
+        device_info: 'OrgSync API JavaScript Client'
+      }, data), function (er, res) {
         if (er) return cb(er);
         self.key = res.body.key;
         cb(null, res);
