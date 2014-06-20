@@ -30,8 +30,10 @@
     },
 
     req: function (method, path, data, cb) {
-      if (!cb) cb = data;
-      if (!_.isObject(data)) data = {};
+      if (!cb) {
+        cb = data;
+        data = {};
+      }
       if (this.key) data.key = this.key;
       var url = this.urlRoot + this.resolvePath(path, data);
       if (superagent && this.cors) {
