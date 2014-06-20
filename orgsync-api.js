@@ -10,22 +10,30 @@
 })(this, function ($, _, superagent) {
   'use strict';
 
-  var methods = ['get', 'post', 'patch', 'put', 'delete'];
+  var node = typeof window === 'undefined';
+
+  var METHODS = ['get', 'post', 'patch', 'put', 'delete'];
+
+  var PATH_RE = /:(\w+)/g;
 
   var OrgSyncApi = function (options) { _.extend(this, options); };
 
   _.extend(OrgSyncApi.prototype, {
 
     // https://hacks.mozilla.org/2009/07/cross-site-xmlhttprequest-with-cors/
-    cors: XMLHttpRequest && 'withCredentials' in new XMLHttpRequest(),
+    cors: !node && 'withCredentials' in new XMLHttpRequest(),
 
     urlRoot: 'https://api.orgsync.com/api/v3',
+
+    resolvePath: function (path, data) {
+      return path.replace(PATH_RE, function (__, $1) { return data[$1]; });
+    },
 
     req: function (method, path, data, cb) {
       if (!cb) cb = data;
       if (!_.isObject(data)) data = {};
       if (this.key) data.key = this.key;
-      var url = this.urlRoot + path;
+      var url = this.urlRoot + this.resolvePath(path, data);
       if (superagent && this.cors) {
         return this.superagentReq(method, url, data, cb);
       }
@@ -67,7 +75,7 @@
         cb(null, res);
       });
     }
-  }, _.reduce(methods, function (obj, method) {
+  }, _.reduce(METHODS, function (obj, method) {
     obj[method] = function (path, data, cb) {
       return this.req(method, path, data, cb);
     };
