@@ -57,8 +57,7 @@
         type: this.cors ? method.toUpperCase() : 'GET',
         url: url,
         dataType: this.cors ? 'json' : 'jsonp',
-        contentType: this.cors ? 'application/json' : void 0,
-        data: this.cors ? JSON.stringify(data) : data,
+        data: data,
         success: function (res) {
           if (res.error) return cb(new Error(res.error));
           cb(null, res);

@@ -1,6 +1,6 @@
 {
   "name": "orgsync-api",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "main": "orgsync-api.js",
   "repository": {
     "type": "git",
