@@ -2,8 +2,7 @@
   if (typeof define === 'function' && define.amd) {
     define(['superagent'], factory);
   } else if (typeof exports !== 'undefined') {
-    module.exports =
-      factory(require('superagent'));
+    module.exports = factory(require('superagent'));
   } else {
     root.OrgSyncApi = factory(root.superagent);
   }
@@ -12,22 +11,18 @@
 
   var serialize = superagent.serialize['application/x-www-form-urlencoded'];
 
-  var clone = function (data) {
-    var copy = {};
-    for (var key in data) copy[key] = data[key];
-    return copy;
+  var extend = function (obj, data) {
+    for (var key in data) obj[key] = data[key];
+    return obj;
   };
 
-  var OrgSyncApi = function (options) {
-    for (var key in options) this[key] = options[key];
-  };
+  var OrgSyncApi = function (options) { extend(this, options); };
 
   var proto = {
     urlRoot: 'https://api.orgsync.com/api/v3',
 
     path: function (path, data, qs) {
-      data = clone(data);
-      if (!data.key && this.key) data.key = this.key;
+      data = extend({key: this.key}, data);
       path = path.replace(/:(\w+)/g, function (__, $1) { return data[$1]; });
       if (qs || qs == null) {
         path += (path.indexOf('?') === -1 ? '?' : '&') + serialize(data);
@@ -45,23 +40,38 @@
         cb = data;
         data = {};
       }
-      data = clone(data);
-      if (!data.key && this.key) data.key = this.key;
-      var action = method === 'query'
-      superagent[method](this.url(path, data, false))
-        [method === 'get' ? 'query' : 'send'](data)
-        .end(function (er, res) {
-          if (er) return cb(er);
-          if (res.body.error) return cb(new Error(res.body.error));
-          cb(null, res.body);
+      data = extend({key: this.key}, data);
+      var url = this.url(path, data, false);
+
+      // HACK: This little dance is necessary for IE9. Once IE9 support is
+      // dropped, JSONP will be irrelevant and purely superagent can be used.
+      try {
+        superagent[method](url)
+          [method === 'get' ? 'query' : 'send'](data)
+          .end(function (er, res) {
+            if (er) return cb(er);
+            if (res.body.error) return cb(new Error(res.body.error));
+            cb(null, res.body);
+          });
+      } catch (er) {
+        if (typeof jQuery === 'undefined') throw er;
+        jQuery.ajax({
+          url: url,
+          dataType: 'jsonp',
+          data: data,
+          success: function (res) {
+            if (res.error) return cb(new Error(res.error));
+            cb(null, res);
+          },
+          error: cb
         });
+      }
       return this;
     },
 
     login: function (data, cb) {
       var self = this;
-      data = clone(data);
-      data.device_info = 'OrgSync API JavaScript Client';
+      data = extend({device_info: 'OrgSync API JavaScript Client'}, data);
       return this.post('/authentication/login', data, function (er, res) {
         if (er) return cb(er);
         self.key = res.body.key;
