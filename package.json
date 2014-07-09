@@ -1,14 +1,13 @@
 {
   "name": "orgsync-api",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "main": "orgsync-api.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/orgsync/orgsync-api-javascript"
   },
   "dependencies": {
-    "superagent": "x",
-    "underscore": "x"
+    "superagent": "x"
   },
   "scripts": {
     "test": "node test.js"

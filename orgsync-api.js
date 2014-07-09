@@ -1,87 +1,82 @@
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
-    define(['jquery', 'underscore'], factory);
+    define(['superagent'], factory);
   } else if (typeof exports !== 'undefined') {
     module.exports =
-      factory(null, require('underscore'), require('superagent'));
+      factory(require('superagent'));
   } else {
-    root.OrgSyncApi = factory(root.jQuery, root._, root.superagent);
+    root.OrgSyncApi = factory(root.superagent);
   }
-})(this, function ($, _, superagent) {
+})(this, function (superagent) {
   'use strict';
 
-  var node = typeof window === 'undefined';
+  var serialize = superagent.serialize['application/x-www-form-urlencoded'];
 
-  var METHODS = ['get', 'post', 'patch', 'put', 'delete'];
+  var clone = function (data) {
+    var copy = {};
+    for (var key in data) copy[key] = data[key];
+    return copy;
+  };
 
-  var PATH_RE = /:(\w+)/g;
+  var OrgSyncApi = function (options) {
+    for (var key in options) this[key] = options[key];
+  };
 
-  var OrgSyncApi = function (options) { _.extend(this, options); };
-
-  _.extend(OrgSyncApi.prototype, {
-
-    // https://hacks.mozilla.org/2009/07/cross-site-xmlhttprequest-with-cors/
-    cors: !node && 'withCredentials' in new XMLHttpRequest(),
-
+  var proto = {
     urlRoot: 'https://api.orgsync.com/api/v3',
 
-    resolvePath: function (path, data) {
-      return path.replace(PATH_RE, function (__, $1) { return data[$1]; });
+    path: function (path, data, qs) {
+      data = clone(data);
+      if (!data.key && this.key) data.key = this.key;
+      path = path.replace(/:(\w+)/g, function (__, $1) { return data[$1]; });
+      if (qs || qs == null) {
+        path += (path.indexOf('?') === -1 ? '?' : '&') + serialize(data);
+      }
+      return path;
+    },
+
+    url: function (path, data, qs) {
+      return this.urlRoot + this.path(path, data, qs);
     },
 
     req: function (method, path, data, cb) {
+      method = method.toLowerCase();
       if (!cb) {
         cb = data;
         data = {};
       }
-      if (this.key) data.key = this.key;
-      var url = this.urlRoot + this.resolvePath(path, data);
-      if (superagent && this.cors) {
-        return this.superagentReq(method, url, data, cb);
-      }
-      return this.jQueryReq(method, url, data, cb);
-    },
-
-    superagentReq: function (method, url, data, cb) {
-      return superagent[method.toLowerCase()](url)
-        .send(data)
+      data = clone(data);
+      if (!data.key && this.key) data.key = this.key;
+      var action = method === 'query'
+      superagent[method](this.url(path, data, false))
+        [method === 'get' ? 'query' : 'send'](data)
         .end(function (er, res) {
-          if (er) return cb(er, res);
-          if (!res.ok) return cb(new Error(res.body.error), res);
-          cb(null, res);
+          if (er) return cb(er);
+          if (res.body.error) return cb(new Error(res.body.error));
+          cb(null, res.body);
         });
-    },
-
-    jQueryReq: function (method, url, data, cb) {
-      return $.ajax({
-        type: this.cors ? method.toUpperCase() : 'GET',
-        url: url,
-        dataType: this.cors ? 'json' : 'jsonp',
-        data: data,
-        success: function (res) {
-          if (res.error) return cb(new Error(res.error));
-          cb(null, res);
-        },
-        error: function (xhr) { cb(new Error(xhr.responseText)); }
-      });
+      return this;
     },
 
     login: function (data, cb) {
       var self = this;
-      this.post('/authentication/login', _.extend({
-        device_info: 'OrgSync API JavaScript Client'
-      }, data), function (er, res) {
+      data = clone(data);
+      data.device_info = 'OrgSync API JavaScript Client';
+      return this.post('/authentication/login', data, function (er, res) {
         if (er) return cb(er);
         self.key = res.body.key;
         cb(null, res);
       });
     }
-  }, _.reduce(METHODS, function (obj, method) {
-    obj[method] = function (path, data, cb) {
+  };
+
+  ['get', 'post', 'patch', 'put', 'delete'].forEach(function (method) {
+    proto[method] = function (path, data, cb) {
       return this.req(method, path, data, cb);
     };
-    return obj;
-  }, {}));
+  });
+
+  for (var key in proto) OrgSyncApi.prototype[key] = proto[key];
 
   return OrgSyncApi;
 });
