@@ -50,8 +50,9 @@
           [method === 'get' ? 'query' : 'send'](data)
           .end(function (er, res) {
             if (er) return cb(er);
-            if (res.body.data) return cb(null, res.body);
-            cb(new Error(res.body.error || res.text || 'Unknown'));
+            var body = res.body || {};
+            if (body.data) return cb(null, body);
+            cb(new Error(body.error || res.text || 'Unknown'));
           });
       } catch (er) {
         if (typeof jQuery === 'undefined') throw er;
