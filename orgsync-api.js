@@ -23,8 +23,13 @@
 
     path: function (path, data, qs) {
       data = extend({key: this.key}, data);
-      path = path.replace(/:(\w+)/g, function (__, $1) { return data[$1]; });
-      if (qs || qs == null) {
+      var subs = [];
+      path = path.replace(/:(\w+)/g, function (__, $1) {
+        subs.push($1);
+        return data[$1];
+      });
+      subs.forEach(function (sub) { delete data[sub]; });
+      if (qs !== false) {
         path += (path.indexOf('?') === -1 ? '?' : '&') + serialize(data);
       }
       return path;
