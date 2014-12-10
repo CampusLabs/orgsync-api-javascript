@@ -74,14 +74,22 @@
       return this;
     },
 
-    login: function (data, cb) {
+    auth: function (path, data, cb) {
       var self = this;
       data = extend({device_info: 'OrgSync API JavaScript Client'}, data);
-      return this.post('/authentication/login', data, function (er, res) {
+      return this.post(path, data, function (er, res) {
         if (er) return cb(er);
         self.key = res.body.key;
         cb(null, res);
       });
+    },
+
+    login: function (data, cb) {
+      this.auth('/authentication/login', data, cb);
+    },
+
+    register: function (data, cb) {
+      this.auth('/accounts/create', data, cb);
     }
   };
 
