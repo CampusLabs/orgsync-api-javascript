@@ -78,9 +78,8 @@
       var self = this;
       data = extend({device_info: 'OrgSync API JavaScript Client'}, data);
       return this.post(path, data, function (er, res) {
-        if (er) return cb(er);
-        self.key = res.body.key;
-        cb(null, res);
+        if (!er) self.key = res.key;
+        cb(er, res);
       });
     },
 
