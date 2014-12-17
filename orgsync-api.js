@@ -56,7 +56,13 @@
           .end(function (er, res) {
             var body = (res || {}).body || {};
             if (body.data) return cb(null, body);
-            cb(new Error(er || body.error || res.text || 'Unknown'), body);
+            if (!er) {
+              if (body.error) er = new Error(body.error);
+              else if (res.error) er = res.error;
+              else er = new Error('Unknown');
+            }
+            er.fields = body.error_fields || {};
+            cb(er, body);
           });
       } catch (er) {
         if (typeof jQuery === 'undefined') throw er;
