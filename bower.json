@@ -1,6 +1,7 @@
 {
   "name": "orgsync-api",
   "version": "0.1.8",
+  "license": "MIT",
   "dependencies": {
     "superagent": "x"
   }
