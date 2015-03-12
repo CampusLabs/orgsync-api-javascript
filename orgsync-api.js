@@ -39,8 +39,12 @@
       return this.urlRoot + this.path(path, data, qs);
     },
 
-    req: function (method, path, data, cb) {
+    req: function (method, path, data, attachments, cb) {
       method = method.toLowerCase();
+      if (!cb) {
+        cb = attachments;
+        attachments = {};
+      }
       if (!cb) {
         cb = data;
         data = {};
@@ -51,19 +55,23 @@
       // HACK: This little dance is necessary for IE9. Once IE9 support is
       // dropped, JSONP will be irrelevant and purely superagent can be used.
       try {
-        superagent[method](url)
-          [method === 'get' ? 'query' : 'send'](data)
-          .end(function (er, res) {
-            var body = (res || {}).body || {};
-            if (body.data) return cb(null, body);
-            if (!er) {
-              if (body.error) er = new Error(body.error);
-              else if (res.error) er = res.error;
-              else er = new Error('Unknown');
-            }
-            er.fields = body.error_fields || {};
-            cb(er, body);
-          });
+        var req = superagent[method](url);
+        req[method === 'get' ? 'query' : 'send'](data);
+        for (var key in attachments) {
+          var attachment = attachments[key];
+          req.attach(key, attachment.file, attachment.name);
+        }
+        req.end(function (er, res) {
+          var body = (res || {}).body || {};
+          if (body.data) return cb(null, body);
+          if (!er) {
+            if (body.error) er = new Error(body.error);
+            else if (res.error) er = res.error;
+            else er = new Error('Unknown');
+          }
+          er.fields = body.error_fields || {};
+          cb(er, body);
+        });
       } catch (er) {
         if (typeof jQuery === 'undefined') throw er;
         jQuery.ajax({
@@ -99,8 +107,8 @@
   };
 
   ['get', 'post', 'patch', 'put', 'delete'].forEach(function (method) {
-    proto[method] = function (path, data, cb) {
-      return this.req(method, path, data, cb);
+    proto[method] = function (path, data, attachments, cb) {
+      return this.req(method, path, data, attachments, cb);
     };
   });
 
