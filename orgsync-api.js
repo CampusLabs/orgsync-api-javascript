@@ -52,39 +52,24 @@
       data = extend({key: this.key}, data);
       var url = this.url(path, data, false);
 
-      // HACK: This little dance is necessary for IE9. Once IE9 support is
-      // dropped, JSONP will be irrelevant and purely superagent can be used.
-      try {
-        var req = superagent[method](url);
-        req[method === 'get' ? 'query' : 'send'](data);
-        for (var key in attachments) {
-          var attachment = attachments[key];
-          req.attach(key, attachment.file, attachment.name);
-        }
-        req.end(function (er, res) {
-          var body = (res || {}).body || {};
-          if (body.data) return cb(null, body);
-          if (!er) {
-            if (body.error) er = new Error(body.error);
-            else if (res.error) er = res.error;
-            else er = new Error('Unknown');
-          }
-          er.fields = body.error_fields || {};
-          cb(er, body);
-        });
-      } catch (er) {
-        if (typeof jQuery === 'undefined') throw er;
-        jQuery.ajax({
-          url: url,
-          dataType: 'jsonp',
-          data: data,
-          success: function (res) {
-            if (res.error) return cb(new Error(res.error));
-            cb(null, res);
-          },
-          error: cb
-        });
+      var req = superagent[method](url);
+      req[method === 'get' ? 'query' : 'send'](data);
+
+      for (var key in attachments) {
+        var attachment = attachments[key];
+        req.attach(key, attachment.file, attachment.name);
       }
+
+      req.end(function (er, res) {
+        var body = (res || {}).body || {};
+        if (body.data) return cb(null, body);
+        if (body.error) er = new Error(body.error);
+        else if (res.error) er = res.error;
+        else if (!er) er = new Error('Unknown');
+        er.fields = body.error_fields || {};
+        cb(er, body);
+      });
+
       return this;
     },
 
