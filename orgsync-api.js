@@ -64,7 +64,7 @@
         var body = (res || {}).body || {};
         if (body.data) return cb(null, body);
         if (body.error) er = new Error(body.error);
-        else if (res.error) er = res.error;
+        else if (res && res.error) er = res.error;
         else if (!er) er = new Error('Unknown');
         er.fields = body.error_fields || {};
         cb(er, body);
