@@ -63,6 +63,7 @@
       req.end(function (er, res) {
         var body = (res || {}).body || {};
         if (body.data) return cb(null, body);
+        if (method === 'del' && res.status === 204) return cb();
         if (body.error) er = new Error(body.error);
         else if (res && res.error) er = res.error;
         else if (!er) er = new Error('Unknown');
