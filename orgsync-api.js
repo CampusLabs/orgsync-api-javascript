@@ -91,7 +91,7 @@
     }
   };
 
-  ['get', 'post', 'patch', 'put', 'delete'].forEach(function (method) {
+  ['get', 'post', 'patch', 'put', 'del'].forEach(function (method) {
     proto[method] = function (path, data, attachments, cb) {
       return this.req(method, path, data, attachments, cb);
     };
