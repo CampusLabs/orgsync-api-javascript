@@ -16,6 +16,11 @@ assert.strictEqual(
 );
 
 assert.strictEqual(
+  api.path('/my/array/path', {array: ['sweet', 'bro']}, true),
+  '/my/array/path?key=test&array%5B%5D=sweet&array%5B%5D=bro'
+);
+
+assert.strictEqual(
   api.url('/my/:test/path/:id', {test: 'sweet', id: 'bro'}, false),
   'https://api.orgsync.com/api/v3/my/sweet/path/bro'
 );

@@ -1,8 +1,9 @@
 {
   "name": "orgsync-api",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "license": "MIT",
   "dependencies": {
+    "hapi-qs": "5.1.0",
     "superagent": "1.x"
   }
 }

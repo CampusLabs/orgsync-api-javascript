@@ -1,15 +1,15 @@
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
-    define(['superagent'], factory);
+    define(['qs', 'superagent'], factory);
   } else if (typeof exports !== 'undefined') {
-    module.exports = factory(require('superagent'));
+    module.exports = factory(require('qs'), require('superagent'));
   } else {
-    root.OrgSyncApi = factory(root.superagent);
+    root.OrgSyncApi = factory(root.Qs, root.superagent);
   }
-})(this, function (superagent) {
+})(this, function (Qs, superagent) {
   'use strict';
 
-  var serialize = superagent.serialize['application/x-www-form-urlencoded'];
+  var QS_OPTIONS = {arrayFormat: 'brackets'};
 
   var extend = function (obj, data) {
     for (var key in data) obj[key] = data[key];
@@ -30,7 +30,8 @@
       });
       subs.forEach(function (sub) { delete data[sub]; });
       if (qs !== false) {
-        path += (path.indexOf('?') === -1 ? '?' : '&') + serialize(data);
+        path += (path.indexOf('?') === -1 ? '?' : '&') +
+          Qs.stringify(data, QS_OPTIONS);
       }
       return path;
     },
@@ -53,6 +54,7 @@
       var url = this.url(path, data, false);
 
       var req = superagent[method](url);
+      if (method === 'get') data = Qs.stringify(data, QS_OPTIONS);
       req[method === 'get' ? 'query' : 'send'](data);
 
       for (var key in attachments) {

@@ -1,6 +1,6 @@
 {
   "name": "orgsync-api",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "main": "orgsync-api.js",
   "license": "MIT",
   "repository": {
@@ -8,6 +8,7 @@
     "url": "https://github.com/orgsync/orgsync-api-javascript"
   },
   "dependencies": {
+    "qs": "5.1.0",
     "superagent": "1.x"
   },
   "scripts": {
