@@ -42,14 +42,24 @@
 
     req: function (method, path, data, attachments, cb) {
       method = method.toLowerCase();
-      if (!cb) {
+
+      if (typeof attachments === 'function') {
         cb = attachments;
         attachments = {};
       }
-      if (!cb) {
+
+      if (typeof data === 'function') {
         cb = data;
         data = {};
       }
+
+      var promise;
+      if (!cb) {
+        promise = new Promise(function (resolve, reject) {
+          cb = function (er, res) { if (er) reject(er); else resolve(res); };
+        });
+      }
+
       data = extend({key: this.key}, data);
       var url = this.url(path, data, false);
 
@@ -73,7 +83,7 @@
         cb(er, body);
       });
 
-      return this;
+      return promise || this;
     },
 
     auth: function (path, data, cb) {
@@ -86,11 +96,11 @@
     },
 
     login: function (data, cb) {
-      this.auth('/authentication/login', data, cb);
+      return this.auth('/authentication/login', data, cb);
     },
 
     register: function (data, cb) {
-      this.auth('/accounts/create', data, cb);
+      return this.auth('/accounts/create', data, cb);
     }
   };
 
