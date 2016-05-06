@@ -63,7 +63,7 @@
       }
 
       var req = superagent[method](this.url(path, query));
-      if (body) req = req.send(body);
+      if (body) req = req.type('json').send(JSON.stringify(body));
 
       req.end(function (er, res) {
         var body = (res || {}).body || {};
