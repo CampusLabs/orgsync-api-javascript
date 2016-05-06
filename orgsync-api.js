@@ -21,7 +21,7 @@
   var proto = {
     urlRoot: 'https://api.orgsync.com/api/v3',
 
-    path: function (path, data, qs) {
+    path: function (path, data) {
       data = extend({key: this.key}, data);
       var subs = [];
       path = path.replace(/:(\w+)/g, function (__, $1) {
@@ -29,28 +29,25 @@
         return data[$1];
       });
       subs.forEach(function (sub) { delete data[sub]; });
-      if (qs !== false) {
-        path += (path.indexOf('?') === -1 ? '?' : '&') +
-          Qs.stringify(data, QS_OPTIONS);
-      }
-      return path;
+      var qs = Qs.stringify(data, QS_OPTIONS);
+      return path + (path.indexOf('?') === -1 ? '?' : '&') + qs;
     },
 
     url: function (path, data, qs) {
       return this.urlRoot + this.path(path, data, qs);
     },
 
-    req: function (method, path, data, attachments, cb) {
+    req: function (method, path, query, body, cb) {
       method = method.toLowerCase();
 
-      if (typeof attachments === 'function') {
-        cb = attachments;
-        attachments = {};
+      if (typeof body === 'function') {
+        cb = body;
+        body = null;
       }
 
-      if (typeof data === 'function') {
-        cb = data;
-        data = {};
+      if (typeof query === 'function') {
+        cb = query;
+        query = null;
       }
 
       var promise;
@@ -60,17 +57,13 @@
         });
       }
 
-      data = extend({key: this.key}, data);
-      var url = this.url(path, data, false);
-
-      var req = superagent[method](url);
-      if (method === 'get') data = Qs.stringify(data, QS_OPTIONS);
-      req[method === 'get' ? 'query' : 'send'](data);
-
-      for (var key in attachments) {
-        var attachment = attachments[key];
-        req.attach(key, attachment.file, attachment.name);
+      if (method !== 'get' && !body) {
+        body = query;
+        query = null;
       }
+
+      var req = superagent[method](this.url(path, query));
+      if (body) req = req.send(body);
 
       req.end(function (er, res) {
         var body = (res || {}).body || {};
